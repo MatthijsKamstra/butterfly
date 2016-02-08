@@ -36,9 +36,13 @@ class AtomGenerator {
       			${post.content}
       		</content>
       		<author>
-      			<name>${authorName}</name>
-      			<email>${authorEmail}</email>
-      		</author>
+      			<name>${authorName}</name>';
+
+      // [mck] atom specs: https://tools.ietf.org/html/rfc4287#section-3.2.3 
+      // " Person constructs MAY contain an atom:email element"  
+      if(config.authorEmail != null || config.authorEmail != "" )       xml += '<email>${authorEmail}</email>';
+
+      xml += '</author>
       	</entry>';
     }
     xml += "</feed>";
