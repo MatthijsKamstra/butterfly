@@ -92,7 +92,7 @@ class Main {
     var atomXml = butterfly.AtomGenerator.generate(posts, config);
     writer.write("atom.xml", atomXml);
 
-    trace("Generated index page and " + posts.length + " posts.");
+    trace("Generated index page, " + posts.length + " posts and " + pages.length + " pages.");
   }
 
   private function ensureDirExists(path:String) : Void
