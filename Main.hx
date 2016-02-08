@@ -179,7 +179,7 @@ typedef ButterflyConfig =
   var siteName : String;
   var siteUrl : String;
   var authorName : String;
-  ?optional var authorEmail : String;
+  @optional var authorEmail : String;
   @optional var googleAnalyticsId : String;
   @optional var diskus : String;
   @optional var homepageTemplate : String;
