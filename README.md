@@ -52,7 +52,7 @@ Butterfly generates:
 
 # JSON Configuration
 
-Butterfly requires a `config.json` file. At a minimum, it should , contains the following fields: `siteName`, `siteUrl`, `authorName`, and `authorEmail` (these are used for Atom feed generation).
+Butterfly requires a `config.json` file. At a minimum, it should , contains the following fields: `siteName`, `siteUrl` and `authorName` (these are used for Atom feed generation).
 
 A minimal `config.json` file looks like this:
 
@@ -60,14 +60,25 @@ A minimal `config.json` file looks like this:
 {
   "siteName": "Learn Haxe",
   "siteUrl": "http://ashes999.github.io/learnhaxe",
-  "authorName": "ashes999",
-  "authorEmail": "ashes999@yahoo.com"
+  "authorName": "ashes999"
 }
 ```
 
 # Optional fields
 
 You can add the following optional fields in your config file:
+
+## email
+
+if you want to add an email to your atom feed:
+
+`"authorEmail": "ashes999@yahoo.com"`
+
+## homepageTemplate
+
+if you want to use a different homepage template add:
+
+`"homepageTemplate" : "home.html"`
 
 ## Google Analytics
 
