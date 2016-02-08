@@ -40,25 +40,6 @@ class Main {
     var homeFile = srcDir + "/" + config.homepageTemplate;
 
     // generate pages and tags first, because they appear in the header/layout
-<<<<<<< HEAD
-    var pages:Array<butterfly.Post> = getPostsOrPages(srcDir + '/pages', true);
-
-    ensureDirExists(srcDir + '/posts' , true);
-    var posts:Array<butterfly.Post> = getPostsOrPages(srcDir + '/posts');
-    // sort by date, newest-first. Sorting by getTime() doesn't seem to work,
-    // for some reason; sorting by the stringified dates (yyyy-mm-dd format) does.
-    haxe.ds.ArraySort.sort(posts, function(a, b) {
-      var x = a.createdOn.format("%Y-%m-%d");
-      var y = b.createdOn.format("%Y-%m-%d");
-
-      if (x < y ) { return 1; }
-      else if (x > y) { return -1; }
-      else { return 0; };
-
-      //return result;
-    });
-
-=======
     var pages:Array<butterfly.Post> = getPostsOrPages('${srcDir}/pages', true);
     var posts:Array<butterfly.Post> = new Array<butterfly.Post>();
 
@@ -77,7 +58,6 @@ class Main {
         //return result;
       });
     }
->>>>>>> ashes999/master
     var tags = new Array<String>();
 
     // Calculate tag counts
