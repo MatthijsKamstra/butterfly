@@ -12,7 +12,8 @@ class Post {
   public var id(default, null) : String;
 
   private static var publishDateRegex = ~/meta-publishedOn: (\d{4}-\d{2}-\d{2})/i;
-  private static var tagRegex = ~/meta-tags: ([\w\s,\-_]+)\n/i;
+  private static var tagRegex = ~/meta-tags:  ([\w\s,\-_]+)\n/i;
+  private static var titleRegex = ~/meta-title: ([\w\s?!.]+)\n/i;
   private static var idRegex = ~/meta-id: (\w{40})/i;
 
   public function new() {
@@ -22,12 +23,14 @@ class Post {
   public static function parse(pathAndFileName:String, isPage:Bool) : Post
   {
     var fileName = pathAndFileName.substr(pathAndFileName.lastIndexOf('/') + 1);
-    var post = new Post();
-    post.title = getTitle(fileName);
-    post.url = getUrl(fileName);
-
     var markdown = sys.io.File.getContent(pathAndFileName);
 
+    var post = new Post();
+    post.title = getTitle(fileName,markdown);
+    post.url = getUrl(fileName);
+
+
+    // [mck] pages need to be sorted as well
     if (!isPage) {
       post.createdOn = getPublishDate(pathAndFileName);
     }
@@ -38,21 +41,25 @@ class Post {
     return post;
   }
 
-  private static function getTitle(fileName:String) : String
+  private static function getTitle(fileName:String,?markdown:String) : String
   {
-    var url = getUrl(fileName);
-    var words:Array<String> = url.split('-');
+    if(titleRegex.match(markdown)){
+      return titleRegex.matched(1).trim().replace('\n','').replace('\r',''); // first group
+    } else {
+      var url = getUrl(fileName);
+      var words:Array<String> = url.split('-');
 
-    var toReturn = "";
-    for (word in words) {
-      // TODO: filter out stop-words properly instead of guessing by length
-      // Capitalizes the first letter for non-stop-words
-      if (word.length > 3) {
-        word = word.charAt(0).toUpperCase() + word.substr(1);
+      var toReturn = "";
+      for (word in words) {
+        // TODO: filter out stop-words properly instead of guessing by length
+        // Capitalizes the first letter for non-stop-words
+        if (word.length > 3) {
+          word = word.charAt(0).toUpperCase() + word.substr(1);
+        }
+        toReturn += word + " ";
       }
-      toReturn += word + " ";
+      return toReturn.trim();
     }
-    return toReturn.trim();
   }
 
   private static function getHtml(markdown:String) : String
@@ -61,6 +68,7 @@ class Post {
     markdown = tagRegex.replace(markdown, "");
     markdown = publishDateRegex.replace(markdown, "");
     markdown = idRegex.replace(markdown, "");
+    markdown = titleRegex.replace(markdown, "");
 
     var html = Markdown.markdownToHtml(markdown);
     return html;
