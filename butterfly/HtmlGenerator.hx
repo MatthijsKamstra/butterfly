@@ -53,8 +53,11 @@ class HtmlGenerator {
 
   public function generatePostHtml(post:butterfly.Post) : String
   {
-    // substitute in content
-    var titleHtml = '<h2 class="blog-post-title">' + post.title + '</h2>';
+    var titleHtml = '';
+    if(!post.isMetaTitle){
+      // substitute in content
+      titleHtml = '<h2 class="blog-post-title">' + post.title + '</h2>';
+    }
     var tagsHtml = "";
     if (post.tags.length > 0) {
       tagsHtml = "<p><strong>Tagged with:</strong> ";

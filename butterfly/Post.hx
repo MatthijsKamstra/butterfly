@@ -10,10 +10,11 @@ class Post {
   public var createdOn(default, null) : Date;
   public var tags(default, null) : Array<String>;
   public var id(default, null) : String;
+  public var isMetaTitle(default, null):Bool;
 
   private static var publishDateRegex = ~/meta-publishedOn: (\d{4}-\d{2}-\d{2})/i;
   private static var tagRegex = ~/meta-tags:  ([\w\s,\-_]+)\n/i;
-  private static var titleRegex = ~/meta-title: ([\w\s?!.]+)\n/i;
+  private static var titleRegex = ~/meta-title: ([\w\s?!.\/\\]+)\n/i; // [mck] I suck at regex!
   private static var idRegex = ~/meta-id: (\w{40})/i;
 
   public function new() {
@@ -28,7 +29,7 @@ class Post {
     var post = new Post();
     post.title = getTitle(fileName,markdown);
     post.url = getUrl(fileName);
-
+    post.isMetaTitle = getIsMetaTitle(markdown);
 
     // [mck] pages need to be sorted as well
     if (!isPage) {
@@ -41,10 +42,19 @@ class Post {
     return post;
   }
 
+  private static function getIsMetaTitle(markdown:String) : Bool
+  {
+    if(titleRegex.match(markdown)){
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
   private static function getTitle(fileName:String,?markdown:String) : String
   {
     if(titleRegex.match(markdown)){
-      return titleRegex.matched(1).trim().replace('\n','').replace('\r',''); // first group
+      return titleRegex.matched(1).trim().replace('\n','').replace('\r','');
     } else {
       var url = getUrl(fileName);
       var words:Array<String> = url.split('-');
