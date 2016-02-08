@@ -41,7 +41,7 @@ class Main {
     // generate pages and tags first, because they appear in the header/layout
     var pages:Array<butterfly.Post> = getPostsOrPages(srcDir + '/pages', true);
 
-    ensureDirExists(srcDir + '/posts');
+    ensureDirExists(srcDir + '/posts' , true);
     var posts:Array<butterfly.Post> = getPostsOrPages(srcDir + '/posts');
     // sort by date, newest-first. Sorting by getTime() doesn't seem to work,
     // for some reason; sorting by the stringified dates (yyyy-mm-dd format) does.
@@ -95,10 +95,15 @@ class Main {
     trace("Generated index page, " + posts.length + " posts and " + pages.length + " pages.");
   }
 
-  private function ensureDirExists(path:String) : Void
+  private function ensureDirExists(path:String, ?isNeeded:Bool = false) : Void
   {
     if (!sys.FileSystem.exists(path)) {
-      throw path + " doesn't exist";
+      if(isNeeded){
+        sys.FileSystem.createDirectory(path);
+        throw path + " didn't exist, now it does, try building again";
+      } else {
+        throw path + " doesn't exist.";
+      }
     } else if (!sys.FileSystem.isDirectory(path)) {
       throw path + " isn't a directory";
     }
