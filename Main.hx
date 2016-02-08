@@ -34,12 +34,13 @@ class Main {
     }
     var config:Dynamic = haxe.Json.parse(sys.io.File.getContent(configFile));
 
-    copyDirRecursively(srcDir + '/content', binDir + '/content');
+    copyDirRecursively('${srcDir}/content', '${binDir}/content');
 
     var layoutFile = srcDir + "/layout.html";
     var homeFile = srcDir + "/" + config.homepageTemplate;
 
     // generate pages and tags first, because they appear in the header/layout
+<<<<<<< HEAD
     var pages:Array<butterfly.Post> = getPostsOrPages(srcDir + '/pages', true);
 
     ensureDirExists(srcDir + '/posts' , true);
@@ -57,6 +58,26 @@ class Main {
       //return result;
     });
 
+=======
+    var pages:Array<butterfly.Post> = getPostsOrPages('${srcDir}/pages', true);
+    var posts:Array<butterfly.Post> = new Array<butterfly.Post>();
+
+    if (sys.FileSystem.exists('${srcDir}/posts')) {
+      posts = getPostsOrPages('${srcDir}/posts');
+      // sort by date, newest-first. Sorting by getTime() doesn't seem to work,
+      // for some reason; sorting by the stringified dates (yyyy-mm-dd format) does.
+      haxe.ds.ArraySort.sort(posts, function(a, b) {
+        var x = a.createdOn.format("%Y-%m-%d");
+        var y = b.createdOn.format("%Y-%m-%d");
+
+        if (x < y ) { return 1; }
+        else if (x > y) { return -1; }
+        else { return 0; };
+
+        //return result;
+      });
+    }
+>>>>>>> ashes999/master
     var tags = new Array<String>();
 
     // Calculate tag counts
@@ -101,7 +122,7 @@ class Main {
     var atomXml = butterfly.AtomGenerator.generate(posts, config);
     writer.write("atom.xml", atomXml);
 
-    trace("Generated index page, " + posts.length + " posts and " + pages.length + " pages.");
+    trace('Generated index page, ${pages.length} page(s), and ${posts.length} post(s).');
   }
 
   private function ensureDirExists(path:String, ?isNeeded:Bool = false) : Void
