@@ -16,9 +16,20 @@ class HtmlGenerator {
 
   private var allContent:Array<butterfly.Post>;
 
-  public function new(layoutHtml:String, posts:Array<butterfly.Post>, pages:Array<butterfly.Post>)
+  private var config : Dynamic;
+
+  public function new(layoutHtml:String, posts:Array<butterfly.Post>, pages:Array<butterfly.Post>, config:Dynamic)
   {
+    this.config = config;
     this.layoutHtml = layoutHtml;
+  
+    // [mck] config data can be used in templates    
+    // perhaps better located in LayoutModifier.hx ????
+    if(config.siteName != '') this.layoutHtml = this.layoutHtml.replace("$siteName", config.siteName);
+    if(config.siteUrl != '') this.layoutHtml = this.layoutHtml.replace("$siteUrl", config.siteName);
+    if(config.authorName != '') this.layoutHtml = this.layoutHtml.replace("$authorName", config.authorName);
+    if(config.authorEmail != '') this.layoutHtml = this.layoutHtml.replace("$authorEmail", config.siteName);
+
     if (this.layoutHtml.indexOf(COTENT_PLACEHOLDER) == -1) {
       throw "Layout HTML doesn't have the blog post placeholder in it: " + COTENT_PLACEHOLDER;
     }
@@ -37,7 +48,7 @@ class HtmlGenerator {
     }
   }
 
-  public function generatePostHtml(post:butterfly.Post, config:Dynamic) : String
+  public function generatePostHtml(post:butterfly.Post) : String
   {
     // substitute in content
     var titleHtml = '<h2 class="blog-post-title">' + post.title + '</h2>';
@@ -109,6 +120,8 @@ class HtmlGenerator {
       html += '<li><a href="${post.url}.html">${post.title}</a> (${post.createdOn.format("%Y-%m-%d")})</li>';
     }
     html += "</ul>";
+
+    if(posts.length <= 0) html = '';
     return this.layoutHtml.replace(COTENT_PLACEHOLDER, html);
   }
 
@@ -116,7 +129,7 @@ class HtmlGenerator {
   {
     var html = "";
     for (page in pages) {
-      html += '<a class="blog-nav-item" href="${page.url}.html">${page.title}</a>';
+      html += '<li><a href="${page.url}.html">${page.title}</a></li>';
     }
     return html;
   }

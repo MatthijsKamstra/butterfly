@@ -68,16 +68,16 @@ class Main {
     }
 
     var layoutHtml = new butterfly.LayoutModifier(layoutFile, config).getHtml();
-    var generator = new butterfly.HtmlGenerator(layoutHtml, posts, pages);
+    var generator = new butterfly.HtmlGenerator(layoutHtml, posts, pages, config);
     var writer = new butterfly.FileWriter(binDir);
 
     for (post in posts) {
-      var html = generator.generatePostHtml(post, config);
+      var html = generator.generatePostHtml(post);
       writer.writePost(post, html);
     }
 
     for (page in pages) {
-      var html = generator.generatePostHtml(page, config);
+      var html = generator.generatePostHtml(page);
       writer.writePost(page, html);
     }
 
@@ -163,4 +163,14 @@ class Main {
     }
     return new Array<butterfly.Post>();
   }
+}
+
+typedef ButterflyConfig =  
+{
+  var siteName : String;
+  var siteUrl : String;
+  var authorName : String;
+  var authorEmail : String;
+  @optional var googleanlyitcs : String;
+  @optional var diskus : String;
 }
