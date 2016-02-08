@@ -10,6 +10,11 @@ class AtomGenerator {
     var authorName = config.authorName;
     var authorEmail = config.authorEmail;
 
+
+    if(posts.length <=0) {
+      return '<!-- no posts -->';
+    } 
+
     var lastUpdated = posts[0].createdOn;
     var xml = '<?xml version="1.0" encoding="utf-8"?>
       <feed xmlns="http://www.w3.org/2005/Atom">
