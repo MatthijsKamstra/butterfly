@@ -100,7 +100,7 @@ class Main {
     if (!sys.FileSystem.exists(path)) {
       if(isNeeded){
         sys.FileSystem.createDirectory(path);
-        throw path + " didn't exist, now it does, try building again";
+        throw path + " didn't exist, now it does, try building again!";
       } else {
         throw path + " doesn't exist.";
       }
@@ -154,6 +154,7 @@ class Main {
       var posts = new Array<butterfly.Post>();
       for (entry in filesAndDirs) {
         var relativePath = path + "/" + entry;
+        if(entry.indexOf(".DS") != -1) continue;
         if (!sys.FileSystem.isDirectory(relativePath)) {
           posts.push(butterfly.Post.parse(relativePath, isPage));
         }
