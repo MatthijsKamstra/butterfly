@@ -31,7 +31,10 @@ class HtmlGenerator {
     if(config.authorEmail != '') this.layoutHtml = this.layoutHtml.replace("$authorEmail", config.siteName);
 
     if (this.layoutHtml.indexOf(CONTENT_PLACEHOLDER) == -1) {
-      throw "Layout HTML doesn't have the blog post placeholder in it: " + CONTENT_PLACEHOLDER;
+      // [mck] in my adjustments this is NOT a deal-breaker, but kinda stupid if none of the templates have this :D
+      // because I don't need it for the custom homepage I will turn it in a warning
+      trace ("Warning: Layout HTML doesn't have the blog post placeholder in it: " + CONTENT_PLACEHOLDER);
+      // throw "Layout HTML doesn't have the blog post placeholder in it: " + CONTENT_PLACEHOLDER;
     }
 
     // Pages first so if both a post and page share a title, the page wins.
@@ -129,6 +132,7 @@ class HtmlGenerator {
   {
     var html = "";
     for (page in pages) {
+      // [mck] classes here looked very specific for bootstrap 
       html += '<li><a href="${page.url}.html">${page.title}</a></li>';
     }
     return html;
