@@ -16,9 +16,9 @@ class HtmlGenerator {
 
   private var allContent:Array<butterfly.Post>;
 
-  private var config : Dynamic;
+  private var config : Main.ButterflyConfig;
 
-  public function new(layoutHtml:String, posts:Array<butterfly.Post>, pages:Array<butterfly.Post>, config:Dynamic)
+  public function new(layoutHtml:String, posts:Array<butterfly.Post>, pages:Array<butterfly.Post>, config:Main.ButterflyConfig)
   {
     this.config = config;
     this.layoutHtml = layoutHtml;

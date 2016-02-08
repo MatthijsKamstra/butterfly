@@ -37,6 +37,7 @@ class Main {
     copyDirRecursively(srcDir + '/content', binDir + '/content');
 
     var layoutFile = srcDir + "/layout.html";
+    var homeFile = srcDir + "/" + config.homepageTemplate;
 
     // generate pages and tags first, because they appear in the header/layout
     var pages:Array<butterfly.Post> = getPostsOrPages(srcDir + '/pages', true);
@@ -86,8 +87,16 @@ class Main {
       writer.write('tag-${tag}.html', html);
     }
 
-    var indexPage = generator.generateHomePage(posts);
-    writer.write("index.html", indexPage);
+    // [mck] it's possible to use an other template for the homepage
+    if(config.homepageTemplate != null || config.homepageTemplate != ""){
+      var layoutHtml2 = new butterfly.LayoutModifier(homeFile, config).getHtml();
+      var generator2 = new butterfly.HtmlGenerator(layoutHtml2, posts, pages, config);
+      var indexPage2 = generator2.generateHomePage(posts);
+      writer.write("index.html", indexPage2);
+    } else {
+      var indexPage = generator.generateHomePage(posts);
+      writer.write("index.html", indexPage);
+    }
 
     var atomXml = butterfly.AtomGenerator.generate(posts, config);
     writer.write("atom.xml", atomXml);
@@ -173,4 +182,5 @@ typedef ButterflyConfig =
   var authorEmail : String;
   @optional var googleanlyitcs : String;
   @optional var diskus : String;
+  @optional var homepageTemplate : String;
 }

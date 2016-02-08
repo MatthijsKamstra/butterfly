@@ -4,7 +4,7 @@ using DateTools;
 using haxe.crypto.Md5;
 
 class AtomGenerator {
-  public static function generate(posts:Array<butterfly.Post>, config:Dynamic):String
+  public static function generate(posts:Array<butterfly.Post>, config:Main.ButterflyConfig):String
   {
     var siteName = config.siteName;
     var authorName = config.authorName;

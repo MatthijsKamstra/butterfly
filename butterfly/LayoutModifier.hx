@@ -19,6 +19,7 @@ class LayoutModifier
 
     var html = sys.io.File.getContent(layoutFile);
 
+    // [mck] not always true, what if there are no posts, but there are only pages?
     html = addAtomLink(html, config);
 
     if (config.googleAnalyticsId != null) {
