@@ -11,11 +11,13 @@ class Post {
   public var tags(default, null) : Array<String>;
   public var id(default, null) : String;
   public var isMetaTitle(default, null):Bool;
+  public var index(default, null):Int;
 
   private static var publishDateRegex = ~/meta-publishedOn: (\d{4}-\d{2}-\d{2})/i;
   private static var tagRegex = ~/meta-tags:  ([\w\s,\-_]+)\n/i;
   private static var titleRegex = ~/meta-title: ([\w\s?!.\/\\]+)\n/i; // [mck] I suck at regex!
   private static var idRegex = ~/meta-id: (\w{40})/i;
+  private static var indexRegex = ~/meta-index: (\w{1})/i;
 
   public function new() {
   }
@@ -30,6 +32,7 @@ class Post {
     post.title = getTitle(fileName,markdown);
     post.url = getUrl(fileName);
     post.isMetaTitle = getIsMetaTitle(markdown);
+    post.index = getIndex(markdown);
 
     // [mck] pages need to be sorted as well
     if (!isPage) {
@@ -40,6 +43,15 @@ class Post {
     post.content = getHtml(markdown);
     post.id = getAndGenerateId(pathAndFileName);
     return post;
+  }
+
+  private static function getIndex(markdown:String) : Int
+  {
+    if (indexRegex.match(markdown)) {
+      var index = indexRegex.matched(1); // first group
+      return Std.parseInt(index);
+    }
+    return -1;
   }
 
   private static function getIsMetaTitle(markdown:String) : Bool
@@ -79,6 +91,7 @@ class Post {
     markdown = publishDateRegex.replace(markdown, "");
     markdown = idRegex.replace(markdown, "");
     markdown = titleRegex.replace(markdown, "");
+    markdown = indexRegex.replace(markdown, "");
 
     var html = Markdown.markdownToHtml(markdown);
     return html;

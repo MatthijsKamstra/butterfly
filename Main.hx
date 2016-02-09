@@ -40,8 +40,22 @@ class Main {
     var homeFile = srcDir + "/" + config.homepageTemplate;
 
     // generate pages and tags first, because they appear in the header/layout
-    var pages:Array<butterfly.Post> = getPostsOrPages('${srcDir}/pages', true);
+    var pages:Array<butterfly.Post> = new Array<butterfly.Post>();
     var posts:Array<butterfly.Post> = new Array<butterfly.Post>();
+
+    if (sys.FileSystem.exists('${srcDir}/pages')) {
+      pages = getPostsOrPages('${srcDir}/pages', true);
+      haxe.ds.ArraySort.sort(pages, function(a, b) {
+        var x = a.index;
+        var y = b.index;
+
+        if (x > y ) { return 1; }
+        else if (x < y) { return -1; }
+        else { return 0; };
+
+        //return result;
+      });
+    }
 
     if (sys.FileSystem.exists('${srcDir}/posts')) {
       posts = getPostsOrPages('${srcDir}/posts');
