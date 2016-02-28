@@ -1,3 +1,8 @@
 export/**/*
+report
+build
+Main.n
+.temp
+coverage.txt
 build.md
 test

@@ -1,0 +1,12 @@
+## Neko
+-main TestMain
+-lib munit
+-lib hamcrest
+-lib markdown
+
+-cp src
+-cp test
+
+-neko build/neko_test.n
+
+--no-traces
