@@ -1,5 +1,6 @@
 package butterfly.html;
 
+import butterfly.core.ButterflyConfig;
 import butterfly.core.Post;
 import butterfly.core.Page;
 import butterfly.generator.HtmlGenerator;
@@ -24,7 +25,7 @@ class LayoutModifier
   private var pages:Array<Page>;
 
   public function new(layoutFile:String, config:ButterflyConfig, posts:Array<Post>,
-    pages:Array<Page>, checkForPagesPlaceholder:Bool = true)
+    pages:Array<Page>, checkForButterflyPagesTag:Bool = true)
   {
     if (!sys.FileSystem.exists(layoutFile)) {
       throw "Can't find layout file " + layoutFile;
@@ -37,7 +38,7 @@ class LayoutModifier
 
     var pagesTag:HtmlTag = TagFinder.findTag(PAGES_LINKS_PLACEHOLDER, html);
     if (pagesTag == null) {
-      if (checkForPagesPlaceholder) {
+      if (checkForButterflyPagesTag) {
         throw 'Layout file ${layoutFile} does not contain the tag to list pages: ${PAGES_LINKS_PLACEHOLDER}';
       }
     } else {
@@ -63,6 +64,13 @@ class LayoutModifier
     this.layoutHtml = html;
   }
 
+  // Returns the final, generated HTML that takes into account all of the required
+  // changes (through the config).
+  public function getHtml() : String
+  {
+    return this.layoutHtml;
+  }
+
   /**
   Substitues any variables defined in the layout with their values from config.json.
   eg. $siteName is replaced with the value of the config.json property
@@ -80,13 +88,6 @@ class LayoutModifier
     }
 
     return toReturn;
-  }
-
-  // Returns the final, generated HTML that takes into account all of the required
-  // changes (through the config).
-  public function getHtml() : String
-  {
-    return this.layoutHtml;
   }
 
   private function generatePagesLinksHtml(pagesTag:HtmlTag, pages:Array<Page>) : String

@@ -4,6 +4,7 @@ import sys.io.File;
 import sys.FileSystem;
 import butterfly.core.Post;
 import massive.munit.Assert;
+using noor.io.FileSystemExtensions;
 
 class PostTest
 {
@@ -16,8 +17,7 @@ class PostTest
 
   @After
   public function deleteTestFiles() {
-    butterfly.io.FileSystem.deleteDirRecursively(TEST_FILES_DIR);
-    FileSystem.deleteDirectory(TEST_FILES_DIR);
+    FileSystem.deleteDirectoryRecursively(TEST_FILES_DIR);
   }
 
   @Test
@@ -39,5 +39,27 @@ Why would you want to display animated GIFs in a HaxeFlixel game? ...';
     Assert.areEqual(1, post.tags.length);
     Assert.areEqual(tag, post.tags[0]);
     Assert.areEqual(Date.fromString(date).getTime(), post.createdOn.getTime());
+  }
+  
+  @Test
+  public function getPostTagsGetsTagsUniquely()
+  {
+      var p1 = new Post();
+      p1.tags = ['apple', 'blueberry', 'peach'];
+      var p2 = new Post();
+      p2.tags = ['apple', 'cherry', 'egg'];
+      
+      var actual:Array<String> = Post.getPostTags([p1, p2]);
+      Assert.areEqual(5, actual.length); // unique tags
+      
+      for (tag in p1.tags)
+      {
+          Assert.isTrue(actual.indexOf(tag) > -1);
+      }
+      
+      for (tag in p2.tags)
+      {
+          Assert.isTrue(actual.indexOf(tag) > -1);
+      }
   }
 }

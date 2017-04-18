@@ -5,10 +5,12 @@ import butterfly.generator.HtmlGeneratorTest;
 import butterfly.MainTest;
 import butterfly.core.ContentTest;
 import butterfly.core.PageTest;
+import butterfly.core.ButterflyConfigTest;
 import butterfly.core.PostTest;
 import butterfly.html.TagFinderTest;
 import butterfly.html.HtmlTagTest;
 import butterfly.html.LayoutModifierTest;
+import butterfly.io.ArgParserTest;
 
 /**
  * Auto generated Test Suite for MassiveUnit.
@@ -27,9 +29,11 @@ class TestSuite extends massive.munit.TestSuite
 		add(butterfly.MainTest);
 		add(butterfly.core.ContentTest);
 		add(butterfly.core.PageTest);
+		add(butterfly.core.ButterflyConfigTest);
 		add(butterfly.core.PostTest);
 		add(butterfly.html.TagFinderTest);
 		add(butterfly.html.HtmlTagTest);
 		add(butterfly.html.LayoutModifierTest);
+		add(butterfly.io.ArgParserTest);
 	}
 }

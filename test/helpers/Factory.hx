@@ -20,18 +20,6 @@ class Factory
     return toReturn;
   }
 
-  public static function createButterflyConfig() : ButterflyConfig
-  {
-    // Required fields are all that we need here
-    var config:ButterflyConfig = {
-      "siteName": "",
-      "siteUrl": "",
-      "authorName": "",
-    }
-
-    return config;
-  }
-
   // Construct, parse, and return a page.
   public static function createPage(markdown:String, path:String)
   {
@@ -48,5 +36,14 @@ class Factory
     File.saveContent(path, markdown);
     post.parse(path);
     return post;
+  }
+  
+  // Creates a layout file. Has a sensible default HTML/filename. Returns the
+  // fully-qualified file name.
+  public static  function createLayoutFile(fileName:String = 'layout.html',
+    html:String = "<html><head></head><body><butterfly-pages /><!-- Placeholder --></body></html>") : String
+  {
+    sys.io.File.saveContent(fileName, html);
+    return fileName;
   }
 }

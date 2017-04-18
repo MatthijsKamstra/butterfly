@@ -1,11 +1,14 @@
 package butterfly.generator;
 
 import massive.munit.Assert;
-import butterfly.generator.HtmlGenerator;
+
+import butterfly.core.ButterflyConfig;
 import butterfly.core.Page;
 import butterfly.core.Post;
-import test.helpers.Factory;
+import butterfly.generator.HtmlGenerator;
+using noor.io.FileSystemExtensions;
 import sys.FileSystem;
+import test.helpers.Factory;
 
 using DateTools;
 
@@ -22,8 +25,7 @@ class HtmlGeneratorTest
 
   @After
   public function deleteTestFiles() {
-    butterfly.io.FileSystem.deleteDirRecursively(TEST_FILES_DIR);
-    FileSystem.deleteDirectory(TEST_FILES_DIR);
+    FileSystem.deleteDirectoryRecursively(TEST_FILES_DIR);
   }
 
 	@Test
@@ -36,7 +38,7 @@ class HtmlGeneratorTest
     var post = new Post();
 		post.title = "Running MUnit with Haxelib";
 
-    var actual = gen.generatePostHtml(post, Factory.createButterflyConfig());
+    var actual = gen.generatePostHtml(post, new ButterflyConfig());
     Assert.areEqual(-1, actual.indexOf(post.title));
 	}
 
@@ -45,11 +47,11 @@ class HtmlGeneratorTest
 	{
 		var layout = "<butterfly-pages /><h2><butterfly-title /></h2>\n<butterfly-content /><butterfly-tags />";
 		var gen = Factory.createHtmlGenerator(layout);
-    var post = new Post();
+        var post = new Post();
 		post.title = "Regex Replacement in Haxe";
 
-    var actual = gen.generatePostHtml(post, Factory.createButterflyConfig());
-    Assert.isTrue(actual.indexOf('<h2>${post.title}</h2>') > -1);
+        var actual = gen.generatePostHtml(post, new ButterflyConfig());
+        Assert.isTrue(actual.indexOf('<h2>${post.title}</h2>') > -1);
 	}
 
 	@Test
@@ -58,11 +60,11 @@ class HtmlGeneratorTest
 	{
 		var layout = "<butterfly-pages /><h2><butterfly-title /></h2>\n<butterfly-content /><butterfly-tags />";
 		var gen = Factory.createHtmlGenerator(layout);
-    var post = new Post();
+        var post = new Post();
 		post.createdOn = Date.now();
 
-    var actual = gen.generatePostHtml(post, Factory.createButterflyConfig());
-    Assert.isTrue(actual.indexOf('Posted on ${post.createdOn.format("%Y-%m-%d")}') > -1);
+        var actual = gen.generatePostHtml(post, new ButterflyConfig());
+        Assert.isTrue(actual.indexOf('Posted on ${post.createdOn.format("%Y-%m-%d")}') > -1);
 	}
 
 	@Test
@@ -71,11 +73,11 @@ class HtmlGeneratorTest
 		var layout = "<butterfly-pages /><h2><butterfly-title /></h2>\n<butterfly-content /><butterfly-tags />" +
 		'Published <butterfly-post-date class="post-meta" prefix="Crafted on " />';
 		var gen = Factory.createHtmlGenerator(layout);
-    var post = new Post();
-		post.createdOn = Date.now();
+        var post = new Post();
+            post.createdOn = Date.now();
 
-    var actual = gen.generatePostHtml(post, Factory.createButterflyConfig());
-    Assert.isTrue(actual.indexOf('<p class="post-meta">Crafted on ${post.createdOn.format("%Y-%m-%d")}') > -1);
+        var actual = gen.generatePostHtml(post, new ButterflyConfig());
+        Assert.isTrue(actual.indexOf('<p class="post-meta">Crafted on ${post.createdOn.format("%Y-%m-%d")}') > -1);
 	}
 
 	@Test
@@ -86,28 +88,44 @@ class HtmlGeneratorTest
 		var markdown = 'meta-publishedOn: 2016-01-31\r\n${expected}';
 		var generator = Factory.createHtmlGenerator(layout);
 		var post = Factory.createPost(markdown, '${TEST_FILES_DIR}/post.md');
-		var actual = generator.generatePostHtml(post, Factory.createButterflyConfig());
+		var actual = generator.generatePostHtml(post, new ButterflyConfig());
 		Assert.isTrue(actual.indexOf(expected) > -1);
 	}
 
 	@Test
 	public function generatePostHtmlReplacesCommentTagWithDisqusHtml()
 	{
-		Assert.isTrue(true);
+        var post:Post = makePost("Unicorns", "http://unicorns.com");
+        post.content = "We love unicorns.";
+        
+        var actual = new HtmlGenerator("<butterfly-comments />", [post], [])
+            .generatePostHtml(post, new ButterflyConfig());
+            
+        // Don't directly read the template, because it contains placeholders
+        // Instead, look for the word "disqus"
+        Assert.isTrue(actual.indexOf("disqus") > -1);
 	}
 
 	@Test
-	public function GeneratePostHtmlAppendsPostTitleToHtmlTitleTag()
+	public function generatePostHtmlAppendsPostTitleToHtmlTitleTag()
 	{
-		Assert.isTrue(true);
+        var postTitle:String = "Bananas";
+        var siteTitle:String = "V R Bananas";
+		var post:Post = makePost(postTitle, "http://wearebananas.com");
+        post.content = "We really are bananas. And sell bananas.";
+        
+        var actual = new HtmlGenerator('<head><title>${siteTitle}</title></head><body><butterfly-content /></body>', [post], [])
+            .generatePostHtml(post, new ButterflyConfig());
+            
+        // Don't directly read the template, because it contains placeholders
+        // Instead, look for the word "disqus"
+        Assert.isTrue(actual.indexOf('<title>${postTitle} | ${siteTitle}</title>') > -1);
 	}
 
 	@Test
 	public function generatePostHtmlReplacesPageAndPostTitlesWithLinks()
 	{
-		var post = new Post();
-		post.title = "Chocolate Truffles";
-		post.url = "http://fake.com/chocolate-truffles";
+		var post = makePost("Chocolate Truffles", "http://fake.com/chocolate-truffles");
 
 		var page = new Page();
 		page.title = "About Le Chocolatier";
@@ -115,15 +133,13 @@ class HtmlGeneratorTest
 
 		var content = 'Do not ask [[${page.title}]]; just read this: [[${post.title}]]';
 
-		var generator = new HtmlGenerator("<butterfly-pages /><butterfly-content /><butterfly-tags />",
-			[post], [page]);
-
-		var config = Factory.createButterflyConfig();
+		var generator = new HtmlGenerator
+            ("<butterfly-pages /><butterfly-content /><butterfly-tags />", [post], [page]);
 
 		var postWithLinks = new Post();
 		postWithLinks.content = content;
 
-		var actual = generator.generatePostHtml(postWithLinks, config);
+		var actual = generator.generatePostHtml(postWithLinks, new ButterflyConfig());
 		Assert.isTrue(actual.indexOf(post.url) > -1);
 		Assert.isTrue(actual.indexOf(page.url) > -1);
 	}
@@ -131,33 +147,57 @@ class HtmlGeneratorTest
 	@Test
 	public function generatePageHtmlReplacesContentTagWithContent()
 	{
-		Assert.isTrue(true);
+		var page = makePage("Blueberry Smoothies", "Blueberry smoothies are very healthy.");
+        
+        var generator = new HtmlGenerator
+            ("<h1>Fake.com</h1><br /><butterfly-content />", [], [page]);
+            
+        var actual = generator.generatePageHtml(page, new ButterflyConfig());
+		Assert.isTrue(actual.indexOf(page.content) > -1);
 	}
 
 	@Test
 	public function generatePageHtmlReplacesButterflyTitleTagWithTitle()
 	{
-		Assert.isTrue(true);
+		var page = makePage("Raspberry Smoothies", "Raspberry smoothies are very healthy.");
+        
+        var generator = new HtmlGenerator
+            ("<h1><butterfly-title /></h1><br /><butterfly-content />", [], [page]);
+            
+        var actual = generator.generatePageHtml(page, new ButterflyConfig());
+		Assert.isTrue(actual.indexOf('<h1>${page.title}</h1>') > -1);
 	}
 
 	@Test
 	public function generatePageHtmlReplacesCommentTagWithDisqusHtml()
 	{
-		Assert.isTrue(true);
+		var page = makePage("Strawberry Smoothies", "Strawberry smoothies are very healthy.");
+        
+        var generator = new HtmlGenerator
+            ("<butterfly-content /><div id='comments'><butterfly-comments /></div>", [], [page]);
+            
+        var actual = generator.generatePageHtml(page, new ButterflyConfig());
+        var divIndex = actual.indexOf("<div id='comments'>") + 19; // 19 = length of opening div tag
+		Assert.isTrue(actual.indexOf("disqus") > divIndex);
 	}
 
 	@Test
-	public function GeneratePageHtmlAppendsPostTitleToHtmlTitleTag()
+	public function generatePageHtmlAppendsPageTitleToHtmlTitleTag()
 	{
-		Assert.isTrue(true);
+		var pageTitle:String = "About";
+        var siteTitle:String = "Monkeys R Us";
+		var page:Page = makePage(pageTitle, "We love monkeys. And bananas.");
+        
+        var actual = new HtmlGenerator('<head><title>${siteTitle}</title></head><body><butterfly-content /></body>', [], [page])
+            .generatePageHtml(page, new ButterflyConfig());
+            
+        Assert.isTrue(actual.indexOf('<title>${pageTitle} | ${siteTitle}</title>') > -1);
 	}
 
 	@Test
 	public function generatePageHtmlReplacesPageAndPostTitlesWithLinks()
 	{
-		var post = new Post();
-		post.title = "Chocolate Truffles";
-		post.url = "http://fake.com/chocolate-truffles";
+		var post = makePost("Chocolate Truffles", "http://fake.com/chocolate-truffles");
 
 		var page = new Page();
 		page.title = "About Le Chocolatier";
@@ -168,7 +208,7 @@ class HtmlGeneratorTest
 		var generator = new HtmlGenerator("<butterfly-pages /><butterfly-content /><butterfly-tags />",
 			[post], [page]);
 
-		var config = Factory.createButterflyConfig();
+		var config = new ButterflyConfig();
 
 		var pageWithLinks = new Page();
 		pageWithLinks.content = content;
@@ -177,4 +217,77 @@ class HtmlGeneratorTest
 		Assert.isTrue(actual.indexOf(post.url) > -1);
 		Assert.isTrue(actual.indexOf(page.url) > -1);
 	}
+
+	@Test
+	public function generateTagPageHtmlGeneratesListOfPostsAndPostCount()
+	{
+			var p1 = makePost("First Post", "http://test.com/first-post.html");
+			p1.tags = ["test"];
+			var p2 = makePost("Second Post");
+			p2.tags = ["test"];
+			var p3 = makePost("Third Post");
+			p3.tags = ["test"];
+			var p4 = makePost("Real, Non-Test Post", "http://test.com/fourth-post.html");
+			p4.tags = ["apple", "banana"];
+
+			var html = Factory.createHtmlGenerator().generateTagPageHtml(p1.tags[0], [p1, p2, p3]);
+
+			Assert.isTrue(html.indexOf("3") > -1); // Post count
+			Assert.isTrue(html.indexOf("tagged with test") > -1); // tag header
+			Assert.isTrue(html.indexOf(p1.url) > -1);
+
+			Assert.isTrue(html.indexOf(p1.title) > -1);
+			Assert.isTrue(html.indexOf(p2.title) > -1);
+			Assert.isTrue(html.indexOf(p3.title) > -1);
+
+			// Doesn't have anything from p4
+			Assert.areEqual(-1, html.indexOf(p4.title));
+			Assert.areEqual(-1, html.indexOf(p4.url));
+			Assert.areEqual(-1, html.indexOf(p4.tags[0]));
+			Assert.areEqual(-1, html.indexOf(p4.tags[1]));
+	}
+
+	@Test
+	public function generateHomePageHtmlGeneratesListOfPostsInOrder()
+	{
+		var p1 = makePost("Benefits of Drinking Water", "http://test.com/water.html");
+		var p2 = makePost("Benefits of Eating Fish", "http://test.com/fish.html");
+		var p3 = makePost("Donuts That Kill", "http://test.com/donutz.html");
+		var posts:Array<Post> = [p1, p2, p3];
+
+		var generator = new HtmlGenerator("<butterfly-content />", posts, new Array<Page>());
+		var html = generator.generateHomePageHtml();
+		for (post in posts) {
+			Assert.isTrue(html.indexOf(post.title) > -1);
+			Assert.isTrue(html.indexOf(post.url) > -1);
+		}
+
+		Assert.isTrue(html.indexOf(p1.title) < html.indexOf(p2.title));
+		Assert.isTrue(html.indexOf(p2.title) < html.indexOf(p3.title));
+	}
+
+	@Test
+	public function tagLinkGeneratesAnchorTagWithTagName()
+	{
+		var actual = HtmlGenerator.tagLink("avacado");
+		Assert.areEqual(0, actual.indexOf("<a"));
+		Assert.isTrue(actual.indexOf("avacado") > -1);
+		Assert.isTrue(actual.indexOf(".html") > -1);
+	}
+
+	private function makePost(title:String, url:String = ""):Post
+	{
+		var post = new Post();
+		post.title = title;
+		post.url = url;
+		return post;
+	}
+    
+    private function makePage(title:String, content:String):Page
+    {
+        var page = new Page();
+        page.title = title;
+        page.content = content;
+        return page;
+    }
 }

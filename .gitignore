@@ -4,5 +4,7 @@ build
 Main.n
 .temp
 coverage.txt
+vscode-project.hxml
+test/temp
 build.md
 test

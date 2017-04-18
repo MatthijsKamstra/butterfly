@@ -1,9 +1,11 @@
 package butterfly.core;
 
+import butterfly.core.Post;
+import butterfly.core.Content;
+using massive.munit.Assert;
+using noor.io.FileSystemExtensions;
 import sys.io.File;
 import sys.FileSystem;
-import butterfly.core.Post;
-import massive.munit.Assert;
 
 class ContentTest
 {
@@ -16,8 +18,7 @@ class ContentTest
 
   @After
   public function deleteTestFiles() {
-    butterfly.io.FileSystem.deleteDirRecursively(TEST_FILES_DIR);
-    FileSystem.deleteDirectory(TEST_FILES_DIR);
+    FileSystem.deleteDirectoryRecursively(TEST_FILES_DIR);
   }
 
   @Test
@@ -50,6 +51,7 @@ Why would you want to display animated GIFs in a HaxeFlixel game? ...';
     var content:Content = new Content();
     content.parse(fullFileName);
 
-    Assert.isTrue(content.id != null && content.id.length > 0);
+    Assert.isNotNull(content.id);
+    Assert.isTrue(content.id.length > 0);
   }
 }
